@@ -1,6 +1,6 @@
 # Persona.AI
 
-## Introducing Persona.AI:
+## Introducing Persona.AI
 - All-in-One Coach: A sophisticated AI-driven platform that integrates the analysis of body language, tone, and facial expressions.
 - Multidimensional Analysis: Provides detailed real-time feedback on key communication components, ensuring no aspect is overlooked.
 
