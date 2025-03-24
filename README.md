@@ -17,7 +17,6 @@
 
 
 ## End-to-End Workflow:
-
 ### Session Initiation:
 - Users log in and start a session using their webcam and microphone on a secure platform.
 - Authentication and user profiling ensure personalized sessions.
