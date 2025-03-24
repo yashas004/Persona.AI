@@ -1,4 +1,4 @@
-# Persona.AI
+# Persona.AI - Command The Conversation
 
 ## Introducing Persona.AI
 - All-in-One Coach: A sophisticated AI-driven platform that integrates the analysis of body language, tone, and facial expressions.
