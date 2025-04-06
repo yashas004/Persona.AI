@@ -1,0 +1,12 @@
+streamlit
+opencv-python
+numpy
+speechrecognition
+pandas
+matplotlib
+mediapipe
+tensorflow
+librosa
+soundfile
+altair
+requests
