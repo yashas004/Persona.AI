@@ -12,4 +12,3 @@ soundfile
 altair
 requests
 streamlit-webrtc
-pyaudio
