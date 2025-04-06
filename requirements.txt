@@ -7,8 +7,6 @@ pandas
 matplotlib
 mediapipe
 tensorflow
-librosa
-soundfile
 altair
 requests
-streamlit-webrtc
+
