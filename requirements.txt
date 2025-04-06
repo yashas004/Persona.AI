@@ -1,0 +1,9 @@
+streamlit
+opencv-python
+numpy
+pandas
+matplotlib
+mediapipe
+tensorflow
+altair
+requests
