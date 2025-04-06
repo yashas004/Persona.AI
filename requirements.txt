@@ -1,6 +1,5 @@
 streamlit
 opencv-python
-cv2
 numpy
 pandas
 matplotlib
