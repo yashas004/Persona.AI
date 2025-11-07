@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 10% 5%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 10% 5%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 263 70% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 5% 12%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 5% 15%;
+    --muted-foreground: 240 5% 64%;
+
+    --accent: 190 95% 50%;
+    --accent-foreground: 240 10% 3.9%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 5% 15%;
+    --input: 240 5% 15%;
+    --ring: 263 70% 60%;
+
+    --radius: 0.75rem;
+
+    --gradient-primary: linear-gradient(135deg, hsl(263 70% 60%), hsl(280 80% 70%));
+    --gradient-secondary: linear-gradient(135deg, hsl(190 95% 50%), hsl(210 90% 60%));
+    --gradient-accent: linear-gradient(135deg, hsl(190 95% 50%), hsl(160 90% 60%));
+    --gradient-hero: linear-gradient(180deg, hsl(240 10% 3.9%), hsl(260 20% 8%));
+    --gradient-card: linear-gradient(135deg, hsl(240 10% 5%) 0%, hsl(260 15% 8%) 100%);
+    
+    --glow-primary: 0 0 60px hsla(263, 70%, 60%, 0.3);
+    --glow-accent: 0 0 40px hsla(190, 95%, 50%, 0.2);
+
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    margin-bottom: 0.5em;
+    padding-bottom: 0.1em; /* Extra padding to prevent clipping */
+  }
+
+  /* Ensure gradient text has proper rendering */
+  .bg-clip-text {
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+    line-height: 1.05; /* Tighter line-height for gradient text */
+    padding-bottom: 0.15em; /* Extra space for descenders */
+    transform: translateY(0.05em); /* Slight upward adjustment */
+    font-weight: 700; /* Ensure bold weight for better descenders */
+  }
+
+  /* Alternative approach for problematic gradient text */
+  .gradient-text-alt {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+    line-height: 1.0;
+    padding-bottom: 0.2em;
+    margin-bottom: 0.1em;
+  }
+}
