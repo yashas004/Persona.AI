@@ -48,7 +48,7 @@ export class VisionAnalyzer {
   private gestureRecognizer: GestureRecognizer | null = null;
   private audioContext: AudioContext | null = null;
   private analyser: AnalyserNode | null = null;
-  private mediaSource: MediaElementSourceNode | null = null;
+  private mediaSource: MediaElementAudioSourceNode | null = null;
   private isInitialized = false;
   private previousFaceLandmarks: any = null;
   private previousPoseLandmarks: any = null;
@@ -618,26 +618,22 @@ export class VisionAnalyzer {
     const headOffset = Math.abs(nose.x - shoulderMid.x);
     const headPosition = Math.max(0, Math.min(100, 100 - headOffset * 150));
    
-    // 3. Spine alignment (vertical check)
-    const hipMid = {
-      x: (leftHip.x + rightHip.x) / 2,
-      y: (leftHip.y + rightHip.y) / 2,
-      z: ((leftHip.z || 0) + (rightHip.z || 0)) / 2,
-    };
-    const spineDeviation = Math.abs(shoulderMid.x - hipMid.x);
-    const spineAlignment = Math.max(0, Math.min(100, 100 - spineDeviation * 200));
-   
+    // 3. Face-shoulder alignment (replacing spine alignment)
+    const faceShoulderAlignment = Math.max(0, Math.min(100,
+      100 - Math.abs(nose.x - shoulderMid.x) * 100
+    ));
+
     // 4. Neck angle (head tilt)
     const neckPoint = { x: nose.x, y: nose.y - 0.1, z: nose.z }; // Virtual point above head
     const neckAngle = this.calculateAngle(neckPoint, nose, shoulderMid);
     const headUpright = Math.max(0, Math.min(100, 100 - Math.abs(180 - neckAngle) * 1.5));
-   
-    // Overall posture score
+
+    // Overall posture score (face and shoulders only)
     const postureScore = Math.round(
-      shoulderAlignment * 0.3 +
-      headPosition * 0.2 +
-      spineAlignment * 0.3 +
-      headUpright * 0.2
+      shoulderAlignment * 0.35 +
+      headPosition * 0.25 +
+      faceShoulderAlignment * 0.25 +
+      headUpright * 0.15
     );
    
     // 5. Stability (frame-to-frame movement)
