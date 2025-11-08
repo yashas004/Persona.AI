@@ -5,7 +5,7 @@ const technologies = [
   {
     category: "Frontend",
     icon: Code2,
-    items: ["React", "TypeScript", "Vite", "Tailwind CSS"],
+    items: ["React", "TypeScript", "Vite"],
     color: "text-blue-400",
   },
   {
