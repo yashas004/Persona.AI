@@ -618,15 +618,15 @@ export class VisionAnalyzer {
 
     // === ENHANCED UPPER BODY POSTURE ANALYSIS ===
 
-    // 1. Shoulder alignment (horizontal level - more lenient)
+    // 1. Shoulder alignment (horizontal level - very lenient)
     const shoulderAngle = Math.abs(
       Math.atan2(
         rightShoulder.y - leftShoulder.y,
         rightShoulder.x - leftShoulder.x
       ) * (180 / Math.PI)
     );
-    // More lenient shoulder alignment scoring
-    const shoulderAlignment = Math.max(0, Math.min(100, 100 - shoulderAngle * 2));
+    // Very lenient shoulder alignment scoring - even small deviations get high scores
+    const shoulderAlignment = Math.max(0, Math.min(100, 100 - shoulderAngle * 1.5));
 
     // 2. Head position relative to shoulders (centered)
     const shoulderMid = {
@@ -786,7 +786,7 @@ export class VisionAnalyzer {
       }
 
       const rms = Math.sqrt(sumSquares / bufferLength);
-      const volume = Math.min(100, rms * 300); // Adjusted scaling for better sensitivity
+      const volume = Math.min(100, rms * 150); // Reduced scaling for less sensitivity
 
       // Only perform pitch detection if there's sufficient volume
       let pitch = 0;

@@ -49,11 +49,13 @@ const Results = () => {
     {
       title: "Posture & Body Language",
       score: metrics.posture || 0,
-      feedback: metrics.posture >= 70
-        ? "Great posture! Your body language conveys confidence and professionalism."
-        : "Keep shoulders back, spine straight. MediaPipe detected slouching - practice the 'wall test' for alignment.",
+      feedback: metrics.posture >= 80
+        ? "Excellent posture! Your upper body alignment conveys confidence and professionalism."
+        : metrics.posture >= 60
+        ? "Good posture with minor room for improvement in upper body alignment."
+        : "Focus on keeping shoulders level and head centered. Practice maintaining relaxed upper body posture.",
       icon: Activity,
-      algorithm: "MediaPipe Pose (33 keypoints) + Joint Angle Analysis"
+      algorithm: "MediaPipe Pose (33 keypoints) + Upper Body Alignment Analysis"
     },
     {
       title: "Speech Clarity & Voice",
@@ -68,7 +70,11 @@ const Results = () => {
       title: "Content & Engagement",
       score: metrics.engagement || 0,
       feedback: speechAnalysis && speechAnalysis.wordsPerMinute > 0
-        ? `Speaking at ${speechAnalysis.wordsPerMinute} WPM. ${speechAnalysis.fillerPercentage > 10 ? 'Reduce fillers by pausing deliberately.' : 'Good fluency!'}`
+        ? speechAnalysis.wordsPerMinute < 100
+          ? `Speaking at ${speechAnalysis.wordsPerMinute} WPM - consider increasing your pace for better engagement. ${speechAnalysis.fillerPercentage > 10 ? 'Also reduce fillers by pausing deliberately.' : ''}`
+          : speechAnalysis.wordsPerMinute > 180
+          ? `Speaking at ${speechAnalysis.wordsPerMinute} WPM - try slowing down for better clarity. ${speechAnalysis.fillerPercentage > 10 ? 'Also reduce fillers by pausing deliberately.' : ''}`
+          : `Speaking at ${speechAnalysis.wordsPerMinute} WPM. ${speechAnalysis.fillerPercentage > 10 ? 'Reduce fillers by pausing deliberately.' : 'Good fluency and pace!'}`
         : "Use varied vocal tones and strategic pauses to maintain interest.",
       icon: MessageSquare,
       algorithm: "TF-IDF + Cosine Similarity + Syllable Estimation"
