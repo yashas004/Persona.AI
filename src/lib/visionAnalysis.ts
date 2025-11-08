@@ -606,70 +606,112 @@ export class VisionAnalyzer {
       };
     }
     const landmarks = results.landmarks[0];
-    // Key pose landmarks
+
+    // Key upper body landmarks for posture analysis
     const nose = landmarks[0];
     const leftShoulder = landmarks[11];
     const rightShoulder = landmarks[12];
-    const leftHip = landmarks[23];
-    const rightHip = landmarks[24];
-    // === IMPROVED POSTURE CALCULATIONS ===
-   
-    // 1. Shoulder alignment (horizontal level check)
+    const leftElbow = landmarks[13];
+    const rightElbow = landmarks[14];
+    const leftEar = landmarks[7];
+    const rightEar = landmarks[8];
+
+    // === ENHANCED UPPER BODY POSTURE ANALYSIS ===
+
+    // 1. Shoulder alignment (horizontal level - more lenient)
     const shoulderAngle = Math.abs(
       Math.atan2(
         rightShoulder.y - leftShoulder.y,
         rightShoulder.x - leftShoulder.x
       ) * (180 / Math.PI)
     );
-    const shoulderAlignment = Math.max(0, Math.min(100, 100 - shoulderAngle * 3));
-   
-    // 2. Head position (should be centered over shoulders)
+    // More lenient shoulder alignment scoring
+    const shoulderAlignment = Math.max(0, Math.min(100, 100 - shoulderAngle * 2));
+
+    // 2. Head position relative to shoulders (centered)
     const shoulderMid = {
       x: (leftShoulder.x + rightShoulder.x) / 2,
       y: (leftShoulder.y + rightShoulder.y) / 2,
       z: ((leftShoulder.z || 0) + (rightShoulder.z || 0)) / 2,
     };
-   
+
     const headOffset = Math.abs(nose.x - shoulderMid.x);
-    const headPosition = Math.max(0, Math.min(100, 100 - headOffset * 150));
-   
-    // 3. Face-shoulder alignment (replacing spine alignment)
-    const faceShoulderAlignment = Math.max(0, Math.min(100,
-      100 - Math.abs(nose.x - shoulderMid.x) * 100
-    ));
+    // More lenient head positioning
+    const headPosition = Math.max(0, Math.min(100, 100 - headOffset * 80));
 
-    // 4. Neck angle (head tilt)
-    const neckPoint = { x: nose.x, y: nose.y - 0.1, z: nose.z }; // Virtual point above head
-    const neckAngle = this.calculateAngle(neckPoint, nose, shoulderMid);
-    const headUpright = Math.max(0, Math.min(100, 100 - Math.abs(180 - neckAngle) * 1.5));
+    // 3. Upper body alignment (shoulders, head, ears)
+    const earMid = {
+      x: (leftEar.x + rightEar.x) / 2,
+      y: (leftEar.y + rightEar.y) / 2,
+    };
 
-    // Overall posture score (face and shoulders only)
+    // Check if head is aligned with shoulders and ears
+    const shoulderToEarAlignment = Math.abs(shoulderMid.x - earMid.x);
+    const upperBodyAlignment = Math.max(0, Math.min(100, 100 - shoulderToEarAlignment * 100));
+
+    // 4. Posture uprightness (vertical alignment)
+    const shoulderWidth = Math.abs(rightShoulder.x - leftShoulder.x);
+    const shoulderHeight = Math.abs(rightShoulder.y - leftShoulder.y);
+
+    // Calculate shoulder slope (should be near horizontal for good posture)
+    const shoulderSlope = shoulderHeight / (shoulderWidth || 1);
+    const uprightScore = Math.max(0, Math.min(100, 100 - shoulderSlope * 200));
+
+    // 5. Arm position (relaxed vs tense)
+    let armPositionScore = 50; // Default neutral
+    if (leftElbow && rightElbow) {
+      // Check if arms are in a natural position (not raised too high)
+      const leftArmRaised = leftShoulder.y - leftElbow.y;
+      const rightArmRaised = rightShoulder.y - rightElbow.y;
+      const avgArmRaised = (leftArmRaised + rightArmRaised) / 2;
+
+      // Arms should be in a relaxed position (not too high, not too low)
+      if (avgArmRaised > 0.1) { // Arms raised
+        armPositionScore = Math.max(0, 100 - avgArmRaised * 500);
+      } else { // Arms too low (might indicate slouching)
+        armPositionScore = Math.max(0, 100 + avgArmRaised * 1000);
+      }
+    }
+
+    // Overall posture score with improved weighting for upper body
     const postureScore = Math.round(
-      shoulderAlignment * 0.35 +
-      headPosition * 0.25 +
-      faceShoulderAlignment * 0.25 +
-      headUpright * 0.15
+      shoulderAlignment * 0.25 +      // Shoulder level
+      headPosition * 0.25 +          // Head centered
+      upperBodyAlignment * 0.20 +    // Overall alignment
+      uprightScore * 0.20 +          // Vertical posture
+      armPositionScore * 0.10        // Arm relaxation
     );
-   
-    // 5. Stability (frame-to-frame movement)
+
+    // Enhanced stability calculation (focus on upper body movement)
     let stability = 100;
     if (this.previousPoseLandmarks) {
       let totalMovement = 0;
-      const keyPoints = [0, 11, 12, 23, 24]; // Nose, shoulders, hips
-      keyPoints.forEach(idx => {
+      let pointsChecked = 0;
+
+      // Focus on upper body keypoints for stability
+      const upperBodyPoints = [0, 7, 8, 11, 12, 13, 14]; // Nose, ears, shoulders, elbows
+
+      upperBodyPoints.forEach(idx => {
         if (landmarks[idx] && this.previousPoseLandmarks[idx]) {
           const dx = landmarks[idx].x - this.previousPoseLandmarks[idx].x;
           const dy = landmarks[idx].y - this.previousPoseLandmarks[idx].y;
           const dz = (landmarks[idx].z || 0) - (this.previousPoseLandmarks[idx].z || 0);
-          totalMovement += Math.sqrt(dx * dx + dy * dy + dz * dz);
+          const movement = Math.sqrt(dx * dx + dy * dy + dz * dz);
+          totalMovement += movement;
+          pointsChecked++;
         }
       });
-      stability = Math.max(0, 100 - totalMovement * 500);
+
+      if (pointsChecked > 0) {
+        const avgMovement = totalMovement / pointsChecked;
+        stability = Math.max(0, Math.min(100, 100 - avgMovement * 300));
+      }
     }
+
     this.previousPoseLandmarks = landmarks;
-   
+
     return {
-      postureScore: Math.max(0, postureScore),
+      postureScore: Math.max(0, Math.min(100, postureScore)),
       shoulderAlignment: Math.round(shoulderAlignment),
       headPosition: Math.round(headPosition),
       stability: Math.round(stability),
