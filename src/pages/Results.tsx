@@ -226,7 +226,6 @@ const Results = () => {
                 <li>• Web Speech API - Real-time transcription with confidence scores</li>
                 <li>• Syllable Estimation - Vowel cluster counting for accurate pace measurement</li>
                 <li>• Context-Aware Filler Detection - Multi-layer NLP pattern matching</li>
-                <li>• Lexical Diversity (TTR) - Type-Token Ratio: {speechAnalysis.lexicalDiversity || 0}%</li>
               </ul>
             </div>
           </Card>
