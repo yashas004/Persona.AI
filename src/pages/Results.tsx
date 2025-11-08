@@ -55,7 +55,7 @@ const Results = () => {
         ? "Good posture with minor room for improvement in upper body alignment."
         : "Focus on keeping shoulders level and head centered. Practice maintaining relaxed upper body posture.",
       icon: Activity,
-      algorithm: "MediaPipe Pose (33 keypoints) + Upper Body Alignment Analysis"
+      algorithm: "MediaPipe Pose (33 keypoints) + Joint Angle Calculations + Shoulder Angle Analysis"
     },
     {
       title: "Speech Clarity & Voice",
