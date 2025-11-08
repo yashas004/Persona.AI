@@ -2,7 +2,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, ArrowRight, Play, Users, Star, Shield, Zap } from "lucide-react";
+import { CheckCircle, ArrowRight, Play, Users, Shield, Zap, TrendingUp } from "lucide-react";
 
 const GetStarted = () => {
   const steps = [
@@ -47,7 +47,7 @@ const GetStarted = () => {
       step: 4,
       title: "Review & Improve",
       description: "Get detailed analysis reports and track your progress over time with comprehensive insights.",
-      icon: Star,
+      icon: TrendingUp,
       details: [
         "Detailed performance reports",
         "Progress tracking",
@@ -74,32 +74,13 @@ const GetStarted = () => {
       description: "Get instant feedback on your performance with sub-100ms response times."
     },
     {
-      icon: Star,
+      icon: TrendingUp,
       title: "Professional Coaching",
       description: "AI-powered analysis that rivals human communication coaches."
     }
   ];
 
-  const testimonials = [
-    {
-      name: "Sarah Johnson",
-      role: "Marketing Manager",
-      content: "This AI coach helped me overcome my fear of public speaking. The real-time feedback was incredible!",
-      rating: 5
-    },
-    {
-      name: "Michael Chen",
-      role: "Software Engineer",
-      content: "The technical interview preparation was spot-on. I got the job offer thanks to the practice sessions.",
-      rating: 5
-    },
-    {
-      name: "Dr. Emily Rodriguez",
-      role: "University Professor",
-      content: "As an educator, I was skeptical, but the AI analysis of my lectures was remarkably accurate and helpful.",
-      rating: 5
-    }
-  ];
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -204,36 +185,7 @@ const GetStarted = () => {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-24 px-4">
-        <div className="container mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
-              What Our Users Say
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Join thousands of professionals who have transformed their communication skills
-            </p>
-          </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="p-6 bg-gradient-card border-border">
-                <div className="flex mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                  ))}
-                </div>
-                <p className="text-muted-foreground mb-4 italic">"{testimonial.content}"</p>
-                <div>
-                  <div className="font-semibold text-foreground">{testimonial.name}</div>
-                  <div className="text-sm text-muted-foreground">{testimonial.role}</div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Final CTA */}
       <section className="py-24 px-4 bg-gradient-hero">
