@@ -132,8 +132,31 @@ export class SpeechAnalyzer {
   // MULTILINGUAL FILLER WORDS
   private readonly FILLERS: Record<string, string[]> = {
     en: [
-      "um", "uh", "er", "ah", "like", "you know", "i mean",
-      "actually", "basically", "literally", "sort of", "kind of"
+      // Basic fillers
+      "um", "uh", "er", "ah", "hmm", "err", "emm", "ummm", "uhhh",
+
+      // Common phrases
+      "like", "you know", "i mean", "you see", "well", "so", "okay", "alright",
+      "actually", "basically", "literally", "sort of", "kind of", "sorta", "kinda",
+      "really", "very", "totally", "absolutely", "definitely", "probably", "maybe",
+      "perhaps", "i think", "i guess", "i suppose", "you know what i mean",
+      "does that make sense", "right", "okay", "alright", "sure", "yeah", "yep",
+      "nope", "exactly", "precisely", "basically", "essentially", "fundamentally",
+      "generally", "typically", "usually", "normally", "obviously", "clearly",
+      "apparently", "apparently", "supposedly", "allegedly", "honestly", "frankly",
+      "seriously", "truly", "really", "actually", "in fact", "as a matter of fact",
+      "believe me", "trust me", "let me tell you", "you see", "look", "listen",
+      "see", "check this out", "here's the thing", "the thing is", "the point is",
+      "what i'm saying is", "what i mean is", "let me put it this way",
+      "how can i put this", "it's like", "it's kind of like", "it's sort of like",
+      "and stuff", "and things", "and whatever", "or something", "or whatever",
+      "and so on", "et cetera", "etc", "and all that", "all that jazz",
+      "you get the idea", "if you will", "so to speak", "in other words",
+      "what i mean to say is", "the way i see it", "from my perspective",
+      "in my opinion", "personally", "i believe", "i feel", "i reckon",
+      "i'd say", "you might say", "some people say", "they say", "people say",
+      "as they say", "so they say", "or so they say", "apparently", "seemingly",
+      "ostensibly", "presumably", "supposedly", "reportedly", "allegedly"
     ],
     hi: [
       "toh", "matlab", "jaise", "waise", "umm", "basically",
