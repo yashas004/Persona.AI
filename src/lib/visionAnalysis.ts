@@ -132,34 +132,49 @@ export class VisionAnalyzer {
     if (!this.isInitialized || !this.faceLandmarker || !this.poseLandmarker || !this.gestureRecognizer) {
       return this.getDefaultMetrics();
     }
-    // Ensure audio is set up if not already
-    if (!this.audioContext && videoElement) {
-      this.audioContext = new AudioContext({ sampleRate: this.SAMPLE_RATE });
-      this.mediaSource = this.audioContext.createMediaElementSource(videoElement);
-      this.analyser = this.audioContext.createAnalyser();
-      this.analyser.fftSize = this.FFT_SIZE;
-      this.mediaSource.connect(this.analyser);
-      this.analyser.connect(this.audioContext.destination);
-      await this.audioContext.resume();
-    }
+
     try {
       this.frameCount++;
+
+      // Initialize audio context if needed (with better error handling)
+      if (!this.audioContext && videoElement) {
+        try {
+          this.audioContext = new AudioContext({ sampleRate: this.SAMPLE_RATE });
+          if (this.audioContext.state === 'suspended') {
+            await this.audioContext.resume();
+          }
+          this.mediaSource = this.audioContext.createMediaElementSource(videoElement);
+          this.analyser = this.audioContext.createAnalyser();
+          this.analyser.fftSize = this.FFT_SIZE;
+          this.analyser.smoothingTimeConstant = 0.8; // Smooth audio analysis
+          this.mediaSource.connect(this.analyser);
+          this.analyser.connect(this.audioContext.destination);
+        } catch (audioError) {
+          console.warn('Audio context initialization failed:', audioError);
+          // Continue without audio analysis
+        }
+      }
+
       // Analyze face with blendshapes
       const faceResults = this.faceLandmarker.detectForVideo(videoElement, timestamp);
       const faceAnalysis = this.analyzeFace(faceResults);
+
       // Analyze posture
       const poseResults = this.poseLandmarker.detectForVideo(videoElement, timestamp);
       const postureAnalysis = this.analyzePosture(poseResults);
+
       // Analyze gestures
       const gestureResults = this.gestureRecognizer.recognizeForVideo(videoElement, timestamp);
       const gestureAnalysis = this.analyzeGestures(gestureResults);
-      // Analyze audio
+
+      // Analyze audio (with error handling)
       const audioAnalysis = this.analyzeAudio();
+
       // Calculate weighted confidence based on detection quality
       const faceDetected = faceResults.faceLandmarks && faceResults.faceLandmarks.length > 0;
       const poseDetected = poseResults.landmarks && poseResults.landmarks.length > 0;
       const gesturesDetected = gestureResults.gestures && gestureResults.gestures.length > 0;
-      const audioDetected = audioAnalysis.volume > 0;
+      const audioDetected = audioAnalysis.volume > 5; // Lower threshold for audio detection
 
       const detectionQuality = (
         (faceDetected ? 0.35 : 0) +
@@ -700,7 +715,8 @@ export class VisionAnalyzer {
   }
 
   private analyzeAudio(): AudioAnalysis {
-    if (!this.analyser || !this.audioContext) {
+    // Check if audio context is available and running
+    if (!this.analyser || !this.audioContext || this.audioContext.state !== 'running') {
       return {
         pitch: 0,
         volume: 0,
@@ -711,62 +727,178 @@ export class VisionAnalyzer {
       };
     }
 
-    const bufferLength = this.analyser.fftSize;
-    const dataArray = new Float32Array(bufferLength);
-    this.analyser.getFloatTimeDomainData(dataArray);
+    try {
+      const bufferLength = this.analyser.fftSize;
+      const dataArray = new Float32Array(bufferLength);
 
-    // Volume (RMS)
-    let sumSquares = 0;
-    for (let i = 0; i < bufferLength; i++) {
-      sumSquares += dataArray[i] * dataArray[i];
+      // Get time domain data for analysis
+      this.analyser.getFloatTimeDomainData(dataArray);
+
+      // Volume calculation (RMS) - optimized
+      let sumSquares = 0;
+      let maxAmplitude = 0;
+      for (let i = 0; i < bufferLength; i++) {
+        const sample = dataArray[i];
+        sumSquares += sample * sample;
+        maxAmplitude = Math.max(maxAmplitude, Math.abs(sample));
+      }
+
+      const rms = Math.sqrt(sumSquares / bufferLength);
+      const volume = Math.min(100, rms * 300); // Adjusted scaling for better sensitivity
+
+      // Only perform pitch detection if there's sufficient volume
+      let pitch = 0;
+      if (volume > 10) { // Minimum volume threshold for pitch detection
+        try {
+          pitch = this.fastPitchDetection(dataArray, this.audioContext.sampleRate);
+        } catch (pitchError) {
+          console.warn('Pitch detection failed:', pitchError);
+          pitch = 0;
+        }
+      }
+
+      // Voice stability (pitch variation) - optimized
+      if (pitch > 0) {
+        this.pitchHistory.push(pitch);
+      }
+
+      if (this.pitchHistory.length > 15) { // Increased history for better stability
+        this.pitchHistory.shift();
+      }
+
+      let voiceStability = 0;
+      if (this.pitchHistory.length >= 3) {
+        const validPitches = this.pitchHistory.filter(p => p > 0);
+        if (validPitches.length >= 3) {
+          const pitchMean = validPitches.reduce((a, b) => a + b, 0) / validPitches.length;
+          const pitchVar = Math.sqrt(
+            validPitches.reduce((sum, p) => sum + Math.pow(p - pitchMean, 2), 0) / validPitches.length
+          );
+          voiceStability = Math.max(0, Math.min(100, 100 - pitchVar));
+        }
+      }
+
+      // Improved speech rate estimation using energy-based approach
+      const speechRate = this.calculateSpeechRate(dataArray, this.audioContext.sampleRate);
+
+      // Enhanced audio emotion inference
+      const audioEmotion = this.inferAudioEmotion(volume, pitch, voiceStability);
+      const audioConfidence = this.calculateAudioConfidence(volume, pitch, voiceStability);
+
+      return {
+        pitch: Math.round(pitch),
+        volume: Math.round(volume),
+        speechRate: Math.round(speechRate),
+        voiceStability: Math.round(voiceStability),
+        audioEmotion,
+        audioConfidence,
+      };
+    } catch (error) {
+      console.warn('Audio analysis error:', error);
+      return {
+        pitch: 0,
+        volume: 0,
+        speechRate: 0,
+        voiceStability: 0,
+        audioEmotion: 'silent',
+        audioConfidence: 0,
+      };
     }
-    const rms = Math.sqrt(sumSquares / bufferLength);
-    const volume = Math.min(100, rms * 200);
+  }
 
-    // Pitch using YIN algorithm
-    const pitch = this.yinPitchDetection(dataArray, this.audioContext.sampleRate);
+  // Fast pitch detection using autocorrelation (lighter than YIN)
+  private fastPitchDetection(buffer: Float32Array, sampleRate: number): number {
+    const bufferLength = buffer.length;
+    const correlations = new Array(bufferLength);
 
-    // Voice stability (pitch variation)
-    this.pitchHistory.push(pitch);
-    if (this.pitchHistory.length > 10) {
-      this.pitchHistory.shift();
-    }
-    const pitchMean = this.pitchHistory.reduce((a, b) => a + b, 0) / this.pitchHistory.length;
-    const pitchVar = Math.sqrt(this.pitchHistory.reduce((a, b) => a + Math.pow(b - pitchMean, 2), 0) / this.pitchHistory.length);
-    const voiceStability = Math.max(0, Math.min(100, 100 - pitchVar * 2));
-
-    // Simple speech rate estimation (zero-crossing rate approximation for syllable count)
-    let zeroCrossings = 0;
-    for (let i = 1; i < bufferLength; i++) {
-      if (dataArray[i - 1] * dataArray[i] < 0) zeroCrossings++;
-    }
-    const speechRate = (zeroCrossings / bufferLength) * (this.audioContext.sampleRate / 2) / 10; // Approx WPM
-
-    // Basic audio emotion inference (based on pitch, volume, stability)
-    let audioEmotion = 'neutral';
-    let audioConfidence = 0.5;
-    if (volume > 60 && pitch > 200) {
-      audioEmotion = 'excited';
-      audioConfidence = 0.8;
-    } else if (volume < 30 && pitch < 150) {
-      audioEmotion = 'calm';
-      audioConfidence = 0.7;
-    } else if (pitchVar > 30) {
-      audioEmotion = 'nervous';
-      audioConfidence = 0.6;
-    } else if (volume > 50 && pitchVar < 10) {
-      audioEmotion = 'confident';
-      audioConfidence = 0.75;
+    // Autocorrelation
+    for (let lag = 0; lag < bufferLength; lag++) {
+      let sum = 0;
+      for (let i = 0; i < bufferLength - lag; i++) {
+        sum += buffer[i] * buffer[i + lag];
+      }
+      correlations[lag] = sum;
     }
 
-    return {
-      pitch: Math.round(pitch),
-      volume: Math.round(volume),
-      speechRate: Math.round(speechRate),
-      voiceStability: Math.round(voiceStability),
-      audioEmotion,
-      audioConfidence,
-    };
+    // Find peak in autocorrelation (excluding DC component)
+    let maxCorr = 0;
+    let bestLag = 0;
+    for (let lag = 20; lag < Math.min(bufferLength / 2, 1000); lag++) { // Reasonable pitch range
+      if (correlations[lag] > maxCorr) {
+        maxCorr = correlations[lag];
+        bestLag = lag;
+      }
+    }
+
+    if (bestLag === 0) return 0;
+
+    // Convert lag to frequency
+    const pitch = sampleRate / bestLag;
+
+    // Filter out unrealistic pitches (human voice range: ~85-255 Hz for males, ~165-255 Hz for females)
+    return (pitch >= 80 && pitch <= 400) ? pitch : 0;
+  }
+
+  // Improved speech rate calculation using energy-based approach
+  private calculateSpeechRate(dataArray: Float32Array, sampleRate: number): number {
+    const bufferLength = dataArray.length;
+    const frameSize = Math.floor(sampleRate * 0.02); // 20ms frames
+    const frames = [];
+
+    // Split into frames
+    for (let i = 0; i < bufferLength - frameSize; i += frameSize) {
+      const frame = dataArray.slice(i, i + frameSize);
+      const energy = frame.reduce((sum, sample) => sum + sample * sample, 0) / frame.length;
+      frames.push(Math.sqrt(energy));
+    }
+
+    // Count frames above threshold (speech segments)
+    const threshold = Math.max(...frames) * 0.3; // Adaptive threshold
+    const speechFrames = frames.filter(energy => energy > threshold).length;
+
+    // Estimate syllables per second (rough approximation)
+    const speechRatio = speechFrames / frames.length;
+    const syllablesPerSecond = speechRatio * 5; // Rough estimate
+
+    // Convert to words per minute (assuming ~5 syllables per word)
+    return syllablesPerSecond * 12; // 60 seconds / 5 syllables per word
+  }
+
+  // Enhanced audio emotion inference
+  private inferAudioEmotion(volume: number, pitch: number, stability: number): string {
+    // Base emotion on volume, pitch, and stability patterns
+    if (volume > 70 && pitch > 180 && stability < 30) {
+      return 'excited';
+    } else if (volume > 60 && pitch > 150 && stability > 70) {
+      return 'confident';
+    } else if (volume < 20 && pitch < 120) {
+      return 'calm';
+    } else if (volume > 50 && pitch < 140 && stability < 40) {
+      return 'nervous';
+    } else if (volume > 40 && pitch > 160 && stability > 60) {
+      return 'enthusiastic';
+    } else if (volume < 30 && stability > 80) {
+      return 'steady';
+    } else {
+      return 'neutral';
+    }
+  }
+
+  // Calculate audio confidence based on signal quality
+  private calculateAudioConfidence(volume: number, pitch: number, stability: number): number {
+    let confidence = 0.3; // Base confidence
+
+    // Volume contributes to confidence
+    if (volume > 20) confidence += 0.2;
+    if (volume > 50) confidence += 0.2;
+
+    // Valid pitch increases confidence
+    if (pitch > 0 && pitch >= 80 && pitch <= 400) confidence += 0.2;
+
+    // Stability increases confidence
+    if (stability > 50) confidence += 0.1;
+
+    return Math.min(0.9, confidence);
   }
 
   // YIN Pitch Detection Algorithm (optimized for real-time)
