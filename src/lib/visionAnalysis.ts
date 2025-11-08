@@ -618,15 +618,15 @@ export class VisionAnalyzer {
 
     // === ENHANCED UPPER BODY POSTURE ANALYSIS ===
 
-    // 1. Shoulder alignment (horizontal level - very lenient)
+    // 1. Shoulder alignment (horizontal level - extremely lenient)
     const shoulderAngle = Math.abs(
       Math.atan2(
         rightShoulder.y - leftShoulder.y,
         rightShoulder.x - leftShoulder.x
       ) * (180 / Math.PI)
     );
-    // Very lenient shoulder alignment scoring - even small deviations get high scores
-    const shoulderAlignment = Math.max(0, Math.min(100, 100 - shoulderAngle * 1.5));
+    // Extremely lenient shoulder alignment scoring - very forgiving
+    const shoulderAlignment = Math.max(50, Math.min(100, 100 - shoulderAngle));
 
     // 2. Head position relative to shoulders (centered)
     const shoulderMid = {
@@ -636,8 +636,8 @@ export class VisionAnalyzer {
     };
 
     const headOffset = Math.abs(nose.x - shoulderMid.x);
-    // More lenient head positioning
-    const headPosition = Math.max(0, Math.min(100, 100 - headOffset * 80));
+    // Extremely lenient head positioning - very forgiving
+    const headPosition = Math.max(60, Math.min(100, 100 - headOffset * 50));
 
     // 3. Upper body alignment (shoulders, head, ears)
     const earMid = {
@@ -647,7 +647,7 @@ export class VisionAnalyzer {
 
     // Check if head is aligned with shoulders and ears
     const shoulderToEarAlignment = Math.abs(shoulderMid.x - earMid.x);
-    const upperBodyAlignment = Math.max(0, Math.min(100, 100 - shoulderToEarAlignment * 100));
+    const upperBodyAlignment = Math.max(40, Math.min(100, 100 - shoulderToEarAlignment * 60));
 
     // 4. Posture uprightness (vertical alignment)
     const shoulderWidth = Math.abs(rightShoulder.x - leftShoulder.x);
@@ -655,7 +655,7 @@ export class VisionAnalyzer {
 
     // Calculate shoulder slope (should be near horizontal for good posture)
     const shoulderSlope = shoulderHeight / (shoulderWidth || 1);
-    const uprightScore = Math.max(0, Math.min(100, 100 - shoulderSlope * 200));
+    const uprightScore = Math.max(30, Math.min(100, 100 - shoulderSlope * 100));
 
     // 5. Arm position (relaxed vs tense)
     let armPositionScore = 50; // Default neutral
