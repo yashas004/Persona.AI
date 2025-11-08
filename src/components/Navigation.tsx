@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthModal } from "@/components/AuthModal";
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, Menu } from "lucide-react";
 
 const Navigation = () => {
   const { user, signOut } = useAuth();
@@ -34,6 +35,7 @@ const Navigation = () => {
               <span className="text-xl font-bold text-foreground">Persona.AI</span>
             </a>
 
+            {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-8">
               <a href="/features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Features
@@ -70,6 +72,68 @@ const Navigation = () => {
                   Sign In
                 </Button>
               )}
+            </div>
+
+            {/* Mobile Navigation */}
+            <div className="md:hidden">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="sm" className="p-2">
+                    <Menu className="w-5 h-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-80">
+                  <div className="flex flex-col gap-6 mt-6">
+                    <a
+                      href="/features"
+                      className="text-lg text-muted-foreground hover:text-foreground transition-colors py-2"
+                    >
+                      Features
+                    </a>
+                    <a
+                      href="/how-it-works"
+                      className="text-lg text-muted-foreground hover:text-foreground transition-colors py-2"
+                    >
+                      How It Works
+                    </a>
+                    <a
+                      href="/technology"
+                      className="text-lg text-muted-foreground hover:text-foreground transition-colors py-2"
+                    >
+                      Technology
+                    </a>
+
+                    <div className="border-t border-border pt-6">
+                      {user ? (
+                        <div className="flex flex-col gap-4">
+                          <a
+                            href="/dashboard"
+                            className="flex items-center gap-2 text-lg text-muted-foreground hover:text-foreground transition-colors py-2"
+                          >
+                            <User className="w-5 h-5" />
+                            Dashboard
+                          </a>
+                          <Button
+                            variant="outline"
+                            onClick={handleSignOut}
+                            className="justify-start border-border hover:bg-secondary"
+                          >
+                            <LogOut className="w-5 h-5 mr-2" />
+                            Sign Out
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          onClick={() => setShowAuthModal(true)}
+                          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                        >
+                          Sign In
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
         </div>
