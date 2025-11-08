@@ -239,7 +239,7 @@ const Results = () => {
               <h3 className="text-lg font-bold text-foreground">Content Analysis (NLP)</h3>
             </div>
             
-            <div className="grid md:grid-cols-3 gap-4 mb-4">
+            <div className="grid md:grid-cols-2 gap-4 mb-4">
               <div className="p-4 rounded-lg bg-background/50">
                 <div className="text-2xl font-bold text-primary mb-1">
                   {contentAnalysis.coherenceScore}%
@@ -247,15 +247,7 @@ const Results = () => {
                 <div className="text-sm text-muted-foreground">Coherence Score</div>
                 <div className="text-xs text-muted-foreground mt-1">Cosine Similarity</div>
               </div>
-              
-              <div className="p-4 rounded-lg bg-background/50">
-                <div className="text-2xl font-bold text-accent mb-1">
-                  {contentAnalysis.vocabularyRichness}%
-                </div>
-                <div className="text-sm text-muted-foreground">Vocabulary Richness</div>
-                <div className="text-xs text-muted-foreground mt-1">Unique / Total Words</div>
-              </div>
-              
+
               <div className="p-4 rounded-lg bg-background/50">
                 <div className="text-2xl font-bold text-primary mb-1">
                   {contentAnalysis.readabilityScore}%
