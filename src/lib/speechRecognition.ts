@@ -190,7 +190,26 @@ export class SpeechAnalyzer {
     const fluencyScore = paceScore;
     const uniqueWords = new Set(this.wordTimestamps.map(w => w.word)).size;
     const wordDiversity = totalWords > 0 ? (uniqueWords / totalWords) * 100 : 0;
-    const articulationScore = Math.max(25, Math.min(100, 50 + wordDiversity));
+
+    // More realistic articulation score calculation
+    // Articulation is about pronunciation clarity, not just vocabulary diversity
+    // Base score starts lower and increases with speech quality factors
+    let articulationBase = 60; // Base articulation score (realistic starting point)
+
+    // Factor in word diversity (some influence, but not dominant)
+    articulationBase += Math.min(wordDiversity * 0.3, 15); // Max +15 from diversity
+
+    // Factor in speech consistency (lower fillers = better articulation)
+    if (fillerPercentage < 5) articulationBase += 10;
+    else if (fillerPercentage < 10) articulationBase += 5;
+    else if (fillerPercentage > 20) articulationBase -= 5;
+
+    // Factor in pace (moderate pace often indicates better articulation)
+    if (wordsPerMinute >= 120 && wordsPerMinute <= 160) articulationBase += 5;
+    else if (wordsPerMinute < 100 || wordsPerMinute > 200) articulationBase -= 5;
+
+    // Articulation should rarely exceed 95% (perfect articulation is nearly impossible)
+    const articulationScore = Math.max(25, Math.min(95, articulationBase));
 
     return {
       wordsPerMinute,
