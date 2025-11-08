@@ -75,8 +75,8 @@ export class AudioAnalyzer {
     }
 
     try {
-      this.analyser.getByteTimeDomainData(this.dataArray);
-      this.analyser.getByteFrequencyData(this.frequencyData);
+      this.analyser.getByteTimeDomainData(this.dataArray as any);
+      this.analyser.getByteFrequencyData(this.frequencyData as any);
 
       const rms = this.calculateRMS(this.dataArray);
       const volumeDB = this.convertToDecibels(rms);
