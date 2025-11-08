@@ -22,16 +22,13 @@ const Hero = () => {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in" style={{ animationDelay: "0.4s" }}>
-          <Button 
-            size="lg" 
+          <Button
+            size="lg"
             onClick={() => window.location.href = '/practice'}
             className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow-primary text-lg px-8 py-6"
           >
             Start Practicing Free
             <ArrowRight className="ml-2 w-5 h-5" />
-          </Button>
-          <Button size="lg" variant="outline" className="border-border hover:bg-secondary text-lg px-8 py-6">
-            Watch Demo
           </Button>
         </div>
 
