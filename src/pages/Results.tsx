@@ -191,7 +191,7 @@ const Results = () => {
                   {speechAnalysis.totalWords}
                 </div>
                 <div className="text-sm text-muted-foreground">Total Words</div>
-                <div className="text-xs text-muted-foreground mt-1">Content words: {speechAnalysis.contentWords || 0}</div>
+                <div className="text-xs text-muted-foreground mt-1">Content words: {speechAnalysis.totalWords - speechAnalysis.fillerCount}</div>
               </div>
               
               <div className="p-4 rounded-lg bg-background/50">
