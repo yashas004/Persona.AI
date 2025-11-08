@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Download, Share2, TrendingUp, Award, Brain, Eye, Mic2, MessageSquare, Activity } from "lucide-react";
+import { ArrowLeft, Download, TrendingUp, Award, Brain, Eye, Mic2, MessageSquare, Activity } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { categories } from "@/components/CategorySelection";
 
@@ -90,18 +90,14 @@ const Results = () => {
           </Button>
           
           <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="border-border"
               onClick={() => window.print()}
             >
               <Download className="w-4 h-4 mr-2" />
               Export PDF
-            </Button>
-            <Button variant="outline" size="sm" className="border-border">
-              <Share2 className="w-4 h-4 mr-2" />
-              Share
             </Button>
           </div>
         </div>
