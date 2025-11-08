@@ -49,14 +49,15 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess }: AuthModalProps) =>
           data: {
             full_name: formData.fullName,
           },
+          emailRedirectTo: `${window.location.origin}/dashboard`,
         },
       });
 
       if (error) throw error;
 
       toast({
-        title: "Success!",
-        description: "Please check your email to confirm your account.",
+        title: "Check your email!",
+        description: "We've sent you an authorization link. Click the link in your email to complete your account setup.",
       });
 
       onAuthSuccess?.();
