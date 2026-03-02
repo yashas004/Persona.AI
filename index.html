@@ -20,3 +20,38 @@
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
+    <script>
+      // Simple error overlay to surface client-side errors during development
+      window.addEventListener('error', function (e) {
+        try {
+          const el = document.createElement('div');
+          el.style.position = 'fixed';
+          el.style.left = '0';
+          el.style.right = '0';
+          el.style.top = '0';
+          el.style.background = 'rgba(200,30,30,0.95)';
+          el.style.color = '#fff';
+          el.style.padding = '12px';
+          el.style.zIndex = '999999';
+          el.style.fontFamily = 'monospace';
+          el.textContent = 'JS Error: ' + (e.message || e.error?.message || String(e));
+          document.body.appendChild(el);
+        } catch (err) { console.error('Error overlay failed', err); }
+      });
+      window.addEventListener('unhandledrejection', function (ev) {
+        try {
+          const el = document.createElement('div');
+          el.style.position = 'fixed';
+          el.style.left = '0';
+          el.style.right = '0';
+          el.style.top = '0';
+          el.style.background = 'rgba(200,30,30,0.95)';
+          el.style.color = '#fff';
+          el.style.padding = '12px';
+          el.style.zIndex = '999999';
+          el.style.fontFamily = 'monospace';
+          el.textContent = 'Promise Rejection: ' + (ev.reason?.message || String(ev.reason));
+          document.body.appendChild(el);
+        } catch (err) { console.error('Error overlay failed', err); }
+      });
+    </script>

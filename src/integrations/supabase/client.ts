@@ -8,10 +8,51 @@ const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: {
-    storage: localStorage,
-    persistSession: true,
-    autoRefreshToken: true,
-  }
-});
+function makeNoopQuery() {
+  const res = { data: null, error: null };
+  const promise = Promise.resolve(res);
+  // select().eq().order() style chaining
+  const chainable: any = {
+    then: promise.then.bind(promise),
+    catch: promise.catch.bind(promise),
+    finally: promise.finally.bind(promise),
+    eq: () => promise,
+    order: () => promise,
+    select: () => chainable,
+    insert: () => promise,
+    update: () => promise,
+    delete: () => promise,
+  };
+  return chainable;
+}
+
+if (!SUPABASE_URL) {
+  console.warn('VITE_SUPABASE_URL not set — exporting stub supabase client for local dev');
+  // Minimal stub implementing the methods used in the app
+  export const supabase: any = {
+    auth: {
+      signUp: async () => ({ data: null, error: null }),
+      signInWithPassword: async () => ({ data: null, error: null }),
+      signOut: async () => ({ error: null }),
+      getSession: async () => ({ data: null, error: null }),
+    },
+    from: (_: string) => makeNoopQuery(),
+    functions: {
+      invoke: async (_name: string, _opts?: any) => ({ data: null, error: null }),
+    },
+    storage: {
+      from: (_: string) => ({
+        upload: async () => ({ data: null, error: null }),
+        download: async () => ({ data: null, error: null }),
+      }),
+    },
+  };
+} else {
+  export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: {
+      storage: localStorage,
+      persistSession: true,
+      autoRefreshToken: true,
+    }
+  });
+}
