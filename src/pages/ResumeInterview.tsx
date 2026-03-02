@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import { Upload, Sparkles, Mic, FileText, ArrowRight } from 'lucide-react';
 import extractTextFromPdf from '../lib/resumeParser';
 import analyzeResumeText from '../lib/resumeAnalyzer';
 import generateInterviewQuestions from '../lib/interviewGenerator';
@@ -137,206 +138,219 @@ export function ResumeInterview(): JSX.Element {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background">
       <Navigation />
-      <main className="flex-1 pt-16 pb-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-50 to-slate-100">
-        <div className="max-w-4xl mx-auto py-8">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-slate-900 mb-2">Resume-Based Interview</h1>
-            <p className="text-lg text-slate-600">Upload your resume and practice answering interview questions tailored to your skills.</p>
+      <main className="flex-1 pt-24">
+        {/* Hero Section */}
+        <section className="pb-12 px-4 bg-gradient-hero">
+          <div className="container mx-auto text-center">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
+              Resume-Based Interview
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Upload your resume and practice answering interview questions tailored to your skills. Get AI-powered feedback in real-time.
+            </p>
           </div>
+        </section>
 
-          {/* Error Banner */}
-          {error && (
-            <Card className="mb-6 bg-red-50 border-red-200 p-4">
-              <p className="text-red-800 font-medium">{error}</p>
-            </Card>
-          )}
+        {/* Main Content */}
+        <section className="py-12 px-4">
+          <div className="container mx-auto max-w-4xl">
+            {/* Error Banner */}
+            {error && (
+              <Card className="mb-8 bg-destructive/10 border-destructive/20 p-4">
+                <p className="text-destructive font-medium">{error}</p>
+              </Card>
+            )}
 
-          {/* Step 1: Upload Resume */}
-          <Card className="mb-6 p-6 bg-white shadow-sm">
-            <h2 className="text-xl font-semibold text-slate-900 mb-4 flex items-center">
-              <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-bold mr-3">1</span>
-              Upload Your Resume
-            </h2>
-            <div className="flex flex-col gap-4">
-              <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors cursor-pointer">
-                <input
-                  type="file"
-                  accept="application/pdf"
-                  onChange={handleFile}
-                  className="hidden"
-                  id="resume-upload"
-                />
-                <label htmlFor="resume-upload" className="cursor-pointer block">
-                  <div className="text-4xl mb-2">📄</div>
-                  <p className="text-slate-700 font-medium">Click to upload PDF resume</p>
-                  <p className="text-sm text-slate-500">or drag and drop</p>
-                </label>
-              </div>
-              {file && <p className="text-sm text-green-600 font-medium">✓ File selected: {file.name}</p>}
-            </div>
-          </Card>
-
-          {/* Step 2: Review & Generate */}
-          <Card className="mb-6 p-6 bg-white shadow-sm">
-            <h2 className="text-xl font-semibold text-slate-900 mb-4 flex items-center">
-              <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-bold mr-3">2</span>
-              Review Extracted Text
-            </h2>
-            <textarea
-              value={text}
-              onChange={(e) => { setText(e.target.value); setError(''); }}
-              placeholder="Resume text will appear here after upload, or paste your resume manually..."
-              className="w-full h-32 p-4 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-            />
-            <div className="mt-4 flex gap-3">
-              <Button
-                onClick={handleGenerate}
-                disabled={!text || loading}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                {loading ? 'Processing...' : 'Generate Questions'}
-              </Button>
-            </div>
-          </Card>
-
-          {/* Step 3: Skills Detected */}
-          {skills.length > 0 && (
-            <Card className="mb-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 shadow-sm">
-              <h2 className="text-lg font-semibold text-green-900 mb-3">Detected Skills</h2>
-              <div className="flex flex-wrap gap-2">
-                {skills.map((skill) => (
-                  <span key={skill} className="px-3 py-1 bg-green-200 text-green-800 rounded-full text-sm font-medium">
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </Card>
-          )}
-
-          {/* Step 4: Interview Questions */}
-          {questions.length > 0 && (
-            <Card className="mb-6 p-6 bg-white shadow-sm">
-              <h2 className="text-xl font-semibold text-slate-900 mb-4 flex items-center">
-                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-700 font-bold mr-3">3</span>
-                Interview Session
-              </h2>
-
-              {/* Progress */}
-              <div className="mb-6">
-                <div className="flex justify-between items-center mb-2">
-                  <p className="text-sm font-medium text-slate-700">Question {current + 1} of {questions.length}</p>
-                  <p className="text-sm text-slate-500">{Math.round(((current + 1) / questions.length) * 100)}%</p>
+            {/* Step 1: Upload Resume */}
+            <Card className="mb-8 p-6 md:p-8 border-border/50">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 text-primary font-bold text-lg">1</div>
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground mb-2">Upload Your Resume</h2>
+                  <p className="text-muted-foreground">Upload a PDF or paste your resume text</p>
                 </div>
-                <div className="w-full bg-slate-200 rounded-full h-2">
-                  <div
-                    className="bg-blue-600 h-2 rounded-full transition-all"
-                    style={{ width: `${((current + 1) / questions.length) * 100}%` }}
+              </div>
+              
+              <div className="space-y-4">
+                <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary/50 transition-colors cursor-pointer">
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    onChange={handleFile}
+                    className="hidden"
+                    id="resume-upload"
+                  />
+                  <label htmlFor="resume-upload" className="cursor-pointer block">
+                    <Upload className="w-8 h-8 mx-auto mb-3 text-muted-foreground" />
+                    <p className="text-foreground font-medium">Click to upload PDF</p>
+                    <p className="text-sm text-muted-foreground">or drag and drop</p>
+                  </label>
+                </div>
+                {file && <p className="text-sm text-green-600 font-medium flex items-center gap-2">✓ File ready: {file.name}</p>}
+              </div>
+            </Card>
+
+            {/* Step 2: Review & Generate */}
+            <Card className="mb-8 p-6 md:p-8 border-border/50">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 text-primary font-bold text-lg">2</div>
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground mb-2">Review & Generate</h2>
+                  <p className="text-muted-foreground">Edit the extracted text and generate questions</p>
+                </div>
+              </div>
+              
+              <textarea
+                value={text}
+                onChange={(e) => { setText(e.target.value); setError(''); }}
+                placeholder="Resume text will appear here after upload, or paste manually..."
+                className="w-full h-40 p-4 border border-border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+              />
+              <div className="mt-6 flex gap-3">
+                <Button
+                  onClick={handleGenerate}
+                  disabled={!text || loading}
+                  size="lg"
+                  className="w-full"
+                >
+                  {loading ? 'Generating...' : 'Generate Questions'}
+                  <Sparkles className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </Card>
+
+            {/* Skills */}
+            {skills.length > 0 && (
+              <Card className="mb-8 p-6 md:p-8 bg-primary/5 border-primary/20">
+                <h3 className="text-xl font-bold text-foreground mb-4">Detected Skills</h3>
+                <div className="flex flex-wrap gap-2">
+                  {skills.map((skill) => (
+                    <span key={skill} className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium border border-primary/20">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </Card>
+            )}
+
+            {/* Interview Session */}
+            {questions.length > 0 && (
+              <Card className="mb-8 p-6 md:p-8 border-border/50">
+                <div className="flex items-start gap-4 mb-6">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 text-primary font-bold text-lg">3</div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-foreground mb-2">Interview Session</h2>
+                    <p className="text-muted-foreground">Question {current + 1} of {questions.length}</p>
+                  </div>
+                </div>
+
+                {/* Progress */}
+                <div className="mb-8">
+                  <div className="w-full bg-secondary rounded-full h-2">
+                    <div
+                      className="bg-primary h-2 rounded-full transition-all"
+                      style={{ width: `${((current + 1) / questions.length) * 100}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">{Math.round(((current + 1) / questions.length) * 100)}% complete</p>
+                </div>
+
+                {/* Current Question */}
+                <div className="bg-secondary/50 p-6 rounded-lg mb-6 border border-border">
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">
+                    {questions[current]?.category}
+                  </p>
+                  <p className="text-xl font-semibold text-foreground leading-relaxed">{questions[current]?.question}</p>
+                </div>
+
+                {/* Controls */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <Button onClick={startMedia} variant="outline" size="lg" className="w-full">
+                    📹 Start Camera
+                  </Button>
+                  <Button onClick={stopMedia} variant="outline" size="lg" className="w-full">
+                    ⏹ Stop Camera
+                  </Button>
+                </div>
+
+                {/* Recording */}
+                <div className="bg-secondary/50 p-4 rounded-lg border border-border mb-6">
+                  {!isRecording ? (
+                    <Button onClick={startRecording} disabled={!questions[current]} size="lg" className="w-full">
+                      <Mic className="mr-2 h-4 w-4" />
+                      Start Recording Answer
+                    </Button>
+                  ) : (
+                    <div className="flex items-center justify-center gap-3 py-2">
+                      <span className="animate-pulse w-3 h-3 bg-destructive rounded-full" />
+                      <span className="text-foreground font-medium">Recording...</span>
+                      <Button onClick={stopRecording} variant="outline" size="sm">Stop</Button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Video */}
+                <div className="bg-black rounded-lg overflow-hidden">
+                  <video
+                    ref={videoRef}
+                    width={400}
+                    height={300}
+                    className="w-full aspect-video object-cover"
+                    muted
+                    playsInline
                   />
                 </div>
-              </div>
+              </Card>
+            )}
 
-              {/* Current Question */}
-              <div className="bg-slate-50 p-6 rounded-lg mb-6 border border-slate-200">
-                <p className="text-xs uppercase tracking-wide text-slate-600 font-semibold mb-2">
-                  {questions[current]?.category}
-                </p>
-                <p className="text-xl font-semibold text-slate-900">{questions[current]?.question}</p>
-              </div>
-
-              {/* Recording Controls */}
-              <div className="flex gap-3 mb-6">
-                <Button
-                  onClick={startMedia}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-                >
-                  📹 Start Camera & Mic
-                </Button>
-                <Button
-                  onClick={stopMedia}
-                  variant="outline"
-                  className="flex-1"
-                >
-                  ⏹ Stop Camera
-                </Button>
-              </div>
-
-              {/* Speech Recording */}
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-6">
-                {!isRecording ? (
-                  <Button
-                    onClick={startRecording}
-                    disabled={!questions[current]}
-                    className="w-full bg-red-600 hover:bg-red-700 text-white"
-                  >
-                    🎙 Start Recording Answer
-                  </Button>
-                ) : (
-                  <div className="flex items-center gap-3">
-                    <span className="animate-pulse w-3 h-3 bg-red-600 rounded-full" />
-                    <p className="flex-1 text-slate-700 font-medium">Recording in progress...</p>
-                    <Button onClick={stopRecording} variant="outline">Stop</Button>
+            {/* Results */}
+            {records.length > 0 && (
+              <Card className="p-6 md:p-8 border-border/50">
+                <div className="flex items-start gap-4 mb-6">
+                  <div className="text-xl font-bold text-primary">✓</div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-foreground">Your Results</h2>
+                    <p className="text-muted-foreground">{records.length} answer(s) evaluated</p>
                   </div>
-                )}
-              </div>
+                </div>
 
-              {/* Video Preview */}
-              <div className="mb-6 bg-black rounded-lg overflow-hidden">
-                <video
-                  ref={videoRef}
-                  width={320}
-                  height={240}
-                  className="w-full max-h-72 object-cover"
-                  muted
-                  playsInline
-                />
-              </div>
-            </Card>
-          )}
-
-          {/* Results */}
-          {records.length > 0 && (
-            <Card className="p-6 bg-white shadow-sm">
-              <h2 className="text-xl font-semibold text-slate-900 mb-4 flex items-center">
-                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100 text-yellow-700 font-bold mr-3">✓</span>
-                Your Answers & Scores
-              </h2>
-              <div className="space-y-4">
-                {records.map((r, i) => (
-                  <div key={i} className="border border-slate-200 rounded-lg p-4 bg-slate-50">
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <p className="text-sm font-semibold text-slate-600 uppercase">Question {i + 1}</p>
-                        <p className="text-slate-900 font-medium mt-1">{r.question}</p>
+                <div className="space-y-4">
+                  {records.map((r, i) => (
+                    <div key={i} className="border border-border rounded-lg p-4 bg-secondary/30">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">Question {i + 1}</p>
+                          <p className="text-foreground font-medium mt-1">{r.question}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-3xl font-bold text-primary">{r.result?.overallScore ?? '—'}</p>
+                          <p className="text-xs text-muted-foreground">Score</p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-2xl font-bold text-blue-600">{r.result?.overallScore ?? '—'}</p>
-                        <p className="text-xs text-slate-500">Overall Score</p>
+                      <p className="text-sm text-muted-foreground italic mb-4">"{r.transcript || '(empty)'}"</p>
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="bg-background p-3 rounded border border-border text-center">
+                          <p className="text-lg font-bold text-foreground">{r.result?.contentScore ?? '—'}</p>
+                          <p className="text-xs text-muted-foreground mt-1">Content</p>
+                        </div>
+                        <div className="bg-background p-3 rounded border border-border text-center">
+                          <p className="text-lg font-bold text-foreground">{r.result?.clarityScore ?? '—'}</p>
+                          <p className="text-xs text-muted-foreground mt-1">Clarity</p>
+                        </div>
+                        <div className="bg-background p-3 rounded border border-border text-center">
+                          <p className="text-lg font-bold text-foreground">{r.result?.confidenceScore ?? '—'}</p>
+                          <p className="text-xs text-muted-foreground mt-1">Confidence</p>
+                        </div>
                       </div>
                     </div>
-                    <p className="text-sm text-slate-700 mb-3 italic">"{r.transcript || '(empty)'}"</p>
-                    <div className="grid grid-cols-3 gap-3 text-center">
-                      <div className="bg-white p-2 rounded border border-slate-200">
-                        <p className="text-lg font-semibold text-slate-900">{r.result?.contentScore ?? '—'}</p>
-                        <p className="text-xs text-slate-600">Content</p>
-                      </div>
-                      <div className="bg-white p-2 rounded border border-slate-200">
-                        <p className="text-lg font-semibold text-slate-900">{r.result?.clarityScore ?? '—'}</p>
-                        <p className="text-xs text-slate-600">Clarity</p>
-                      </div>
-                      <div className="bg-white p-2 rounded border border-slate-200">
-                        <p className="text-lg font-semibold text-slate-900">{r.result?.confidenceScore ?? '—'}</p>
-                        <p className="text-xs text-slate-600">Confidence</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          )}
-        </div>
+                  ))}
+                </div>
+              </Card>
+            )}
+          </div>
+        </section>
       </main>
       <Footer />
     </div>
