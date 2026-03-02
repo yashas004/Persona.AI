@@ -46,6 +46,9 @@ const Navigation = () => {
               <a href="/technology" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Technology
               </a>
+              <a href="/resume-interview" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Resume Interview
+              </a>
 
               {user ? (
                 <div className="flex items-center gap-4">
@@ -101,6 +104,12 @@ const Navigation = () => {
                       className="text-lg text-muted-foreground hover:text-foreground transition-colors py-2"
                     >
                       Technology
+                    </a>
+                    <a
+                      href="/resume-interview"
+                      className="text-lg text-muted-foreground hover:text-foreground transition-colors py-2"
+                    >
+                      Resume Interview
                     </a>
 
                     <div className="border-t border-border pt-6">

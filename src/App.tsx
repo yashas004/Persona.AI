@@ -12,6 +12,7 @@ import HowItWorks from "./pages/HowItWorks";
 import Technology from "./pages/Technology";
 import GetStarted from "./pages/GetStarted";
 import Practice from "./pages/Practice";
+import ResumeInterview from "./pages/ResumeInterview";
 import Results from "./pages/Results";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/technology" element={<Technology />} />
             <Route path="/get-started" element={<GetStarted />} />
             <Route path="/practice" element={<Practice />} />
+            <Route path="/resume-interview" element={<ResumeInterview />} />
             <Route path="/results" element={<Results />} />
             <Route path="/dashboard" element={<Dashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
