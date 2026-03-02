@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, FileText, Play } from "lucide-react";
+import { ArrowRight, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const CTA = () => {
@@ -13,15 +13,8 @@ const CTA = () => {
           Choose your path to improvement. Practice with AI-powered feedback tailored to your goals.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <Link to="/practice">
-            <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-              <Play className="mr-2 h-5 w-5" />
-              Start Practicing Free
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </Link>
           <Link to="/resume-interview">
-            <Button size="lg" variant="outline" className="border-primary text-foreground hover:bg-primary/10">
+            <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
               <FileText className="mr-2 h-5 w-5" />
               Try Resume Interview
               <ArrowRight className="ml-2 h-5 w-5" />
