@@ -26,29 +26,32 @@ function makeNoopQuery() {
   return chainable;
 }
 
-if (!SUPABASE_URL) {
-  console.warn('VITE_SUPABASE_URL not set — exporting stub supabase client for local dev');
-  // Minimal stub implementing the methods used in the app
-  export const supabase: any = {
-    auth: {
-      signUp: async () => ({ data: null, error: null }),
-      signInWithPassword: async () => ({ data: null, error: null }),
-      signOut: async () => ({ error: null }),
-      getSession: async () => ({ data: null, error: null }),
-    },
-    from: (_: string) => makeNoopQuery(),
-    functions: {
-      invoke: async (_name: string, _opts?: any) => ({ data: null, error: null }),
-    },
-    storage: {
-      from: (_: string) => ({
-        upload: async () => ({ data: null, error: null }),
-        download: async () => ({ data: null, error: null }),
-      }),
-    },
-  };
-} else {
-  export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+// Export `supabase` as a top-level constant. Avoid `export` inside blocks which
+// breaks static module transforms during build.
+function makeSupabaseClient() {
+  if (!SUPABASE_URL) {
+    console.warn('VITE_SUPABASE_URL not set — returning stub supabase client for local dev');
+    return {
+      auth: {
+        signUp: async () => ({ data: null, error: null }),
+        signInWithPassword: async () => ({ data: null, error: null }),
+        signOut: async () => ({ error: null }),
+        getSession: async () => ({ data: null, error: null }),
+      },
+      from: (_: string) => makeNoopQuery(),
+      functions: {
+        invoke: async (_name: string, _opts?: any) => ({ data: null, error: null }),
+      },
+      storage: {
+        from: (_: string) => ({
+          upload: async () => ({ data: null, error: null }),
+          download: async () => ({ data: null, error: null }),
+        }),
+      },
+    } as any;
+  }
+
+  return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     auth: {
       storage: localStorage,
       persistSession: true,
@@ -56,3 +59,5 @@ if (!SUPABASE_URL) {
     }
   });
 }
+
+export const supabase = makeSupabaseClient();
