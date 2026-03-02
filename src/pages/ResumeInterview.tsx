@@ -28,6 +28,8 @@ export function ResumeInterview(): JSX.Element {
   const [isRecording, setIsRecording] = useState(false);
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [liveTranscript, setLiveTranscript] = useState('');
+  const [submittedTranscript, setSubmittedTranscript] = useState('');
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const speechRef = useRef<SpeechRecognitionService | null>(null);
   const visionRef = useRef<VisionAnalyzer | null>(null);
@@ -116,16 +118,15 @@ export function ResumeInterview(): JSX.Element {
       return;
     }
     setIsRecording(true);
-    s.onTranscript(async (transcript, isFinal) => {
+    setLiveTranscript('');
+    setSubmittedTranscript('');
+    s.onTranscript((transcript, isFinal) => {
+      setLiveTranscript(transcript);
       if (isFinal) {
-        // stop and evaluate
+        // stop recording but don't evaluate yet
         s.stop();
         setIsRecording(false);
-        const q = questions[current];
-        const expected = q.expectedTopics || [];
-        const result = await evaluateAnswer(q.question, expected, transcript, videoRef.current || undefined);
-        setRecords(prev => [...prev, { questionIndex: current, question: q.question, transcript, result }]);
-        setCurrent(c => Math.min(questions.length - 1, c + 1));
+        setSubmittedTranscript(transcript);
       }
     });
     s.start();
@@ -135,6 +136,20 @@ export function ResumeInterview(): JSX.Element {
     const s = speechRef.current;
     if (s) s.stop();
     setIsRecording(false);
+  }
+
+  async function submitAnswer() {
+    if (!submittedTranscript) {
+      setError('No transcript recorded. Please try recording again.');
+      return;
+    }
+    const q = questions[current];
+    const expected = q.expectedTopics || [];
+    const result = await evaluateAnswer(q.question, expected, submittedTranscript, videoRef.current || undefined);
+    setRecords(prev => [...prev, { questionIndex: current, question: q.question, transcript: submittedTranscript, result }]);
+    setLiveTranscript('');
+    setSubmittedTranscript('');
+    setCurrent(c => c + 1);
   }
 
   return (
@@ -277,22 +292,33 @@ export function ResumeInterview(): JSX.Element {
 
                 {/* Recording */}
                 <div className="bg-secondary/50 p-4 rounded-lg border border-border mb-6">
-                  {!isRecording ? (
+                  {!isRecording && !submittedTranscript ? (
                     <Button onClick={startRecording} disabled={!questions[current]} size="lg" className="w-full">
                       <Mic className="mr-2 h-4 w-4" />
                       Start Recording Answer
                     </Button>
-                  ) : (
+                  ) : isRecording ? (
                     <div className="flex items-center justify-center gap-3 py-2">
                       <span className="animate-pulse w-3 h-3 bg-destructive rounded-full" />
                       <span className="text-foreground font-medium">Recording...</span>
                       <Button onClick={stopRecording} variant="outline" size="sm">Stop</Button>
                     </div>
+                  ) : (
+                    <div className="flex gap-3">
+                      <Button onClick={startRecording} variant="outline" size="lg" className="w-full">
+                        <Mic className="mr-2 h-4 w-4" />
+                        Re-record
+                      </Button>
+                      <Button onClick={submitAnswer} size="lg" className="w-full bg-green-600 hover:bg-green-700">
+                        Submit Answer
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
                   )}
                 </div>
 
-                {/* Video */}
-                <div className="bg-black rounded-lg overflow-hidden">
+                {/* Video with Live Transcript Overlay */}
+                <div className="relative bg-black rounded-lg overflow-hidden mb-6">
                   <video
                     ref={videoRef}
                     width={400}
@@ -301,6 +327,17 @@ export function ResumeInterview(): JSX.Element {
                     muted
                     playsInline
                   />
+                  {/* Live Transcript Corner */}
+                  {(liveTranscript || submittedTranscript) && (
+                    <div className="absolute bottom-4 left-4 right-4 bg-black/80 backdrop-blur-sm rounded-lg p-4 border border-primary/50 max-h-32 overflow-y-auto">
+                      <p className="text-xs uppercase tracking-widest text-primary font-semibold mb-2">
+                        {isRecording ? '🎙 Live Transcript' : '✓ Your Answer'}
+                      </p>
+                      <p className="text-sm text-white leading-relaxed">
+                        {liveTranscript || submittedTranscript}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </Card>
             )}
